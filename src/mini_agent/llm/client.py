@@ -8,16 +8,14 @@ class DeepSeekLLM(BaseLLM):
         self.api_key=os.getenv("DEEPSEEK_API_KEY")
         self.url="https://api.deepseek.com/chat/completions"
         self.model="deepseek-v4-flash"
-    def chat(self,message:str)->str:
+    def chat(self,messages:list[dict])->str:
         headers={
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json"}
         data={
             "model":self.model,
-            "messages":[
-                {"role":"user",
-                 "content":message}
-            ],
+            "messages":messages
+            ,
             "stream":False
         }
         response=httpx.post(self.url,
