@@ -39,3 +39,18 @@ Python Program
 LLM API
     ↓
 Model Response
+
+commit 1
+项目基础结构
+      ↓
+commit 2
+LLM 抽象
+      ↓
+commit 3
+HTTP / API
+      ↓
+commit 4
+DeepSeek Client
+      ↓
+commit 5
+Multi-turn Conversation
