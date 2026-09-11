@@ -33,24 +33,16 @@ MiniAgent v0.1
 
 核心能力：
 
-```text
-Python Program
-    ↓
-LLM API
-    ↓
-Model Response
-
-commit 1
-项目基础结构
-      ↓
-commit 2
-LLM 抽象
-      ↓
-commit 3
-HTTP / API
-      ↓
-commit 4
-DeepSeek Client
-      ↓
-commit 5
-Multi-turn Conversation
+Day 1  项目骨架 / Python 包
+  ↓
+Day 2  LLM 抽象接口
+  ↓
+Day 3  HTTP / JSON / API
+  ↓
+Day 4  DeepSeek API 接入
+  ↓
+Day 5  多轮对话
+  ↓
+Day 6  Tool + ToolRegistry
+  ↓
+Day 7  真正的 Tool Calling

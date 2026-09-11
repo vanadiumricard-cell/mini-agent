@@ -27,5 +27,42 @@ class DeepSeekLLM(BaseLLM):
         response_data=response.json()
         answer=response_data["choices"][0]["message"]["content"]
         return answer
-    
+def get_tools():
+    return [
+        {
+            "type": "function",
+            "function": {
+                "name": "calculator",
+                "description": "进行基本数学计算",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "a": {
+                            "type": "number",
+                            "description": "第一个数字"
+                        },
+                        "b": {
+                            "type": "number",
+                            "description": "第二个数字"
+                        },
+                        "operation": {
+                            "type": "string",
+                            "enum": [
+                                "add",
+                                "subtract",
+                                "multiply",
+                                "divide"
+                            ],
+                            "description": "计算类型"
+                        }
+                    },
+                    "required": [
+                        "a",
+                        "b",
+                        "operation"
+                    ]
+                }
+            }
+        }
+    ]
 
