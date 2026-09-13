@@ -10,9 +10,9 @@ def main():
             print("agent已退出")
             break
         messages.append({"role":"user","content":user_input})
-        response=llm.chat(messages)
-        print(f"agent: {response}")
-        messages.append({"role":"assistant","content":response})
+        message=llm.chat(messages)
+        print(f"agent: {message['content']}")
+        messages.append(message)
 
 if __name__ == "__main__":
      main()

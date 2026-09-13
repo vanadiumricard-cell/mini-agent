@@ -1,9 +1,9 @@
-from pyexpat.errors import messages
+
 
 from mini_agent import agent
 from mini_agent.agent import Agent
 from mini_agent.llm.client import DeepSeekLLM
-from mini_agent.tools import calculator,ToolRegistry, registry
+from mini_agent.tools import calculator,ToolRegistry
 llm=DeepSeekLLM()
 registry=ToolRegistry()
 registry.register("calculator",calculator)
