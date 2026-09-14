@@ -10,7 +10,7 @@ registry.register("calculator",calculator,calculator_schema)
 agent=Agent(llm,registry)
 print()
 print("第一次")
-messages=[{"role":"user","content":"计算123*456"}]
+messages=[{"role":"user","content":"计算5+0"}]
 final=agent.run(messages)
 print("最终回答",final["content"])
 print()
