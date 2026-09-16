@@ -31,11 +31,11 @@ def main ():
                  for tool_call in tool_calls:
                      print(f"  [调用工具] {tool_call['function']['name']}"
                           f" 参数: {tool_call['function']['arguments']}")
-          '''  
+           
                      
          for ever_messages in messages:
              print(ever_messages)
-         
+         '''
          print(f"agent:{message['content']}")
 if __name__ == "__main__":
     main()

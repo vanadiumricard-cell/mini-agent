@@ -7,9 +7,9 @@ get_current_time_schema= {
     "function":{
         "name":"get_current_time",
         "description":"获得当前的日期和时间",
-        "paramrters":{
+        "parameters":{
             "type":"object",
-            "property":{},
+            "properties":{},
         },
     },
 }

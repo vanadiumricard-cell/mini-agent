@@ -46,3 +46,10 @@ Day 5  多轮对话
 Day 6  Tool + ToolRegistry
   ↓
 Day 7  真正的 Tool Calling
+# Week 2：Agent Loop 与工具系统（v0.4）
+
+## 本周目标
+完成：MiniAgent v0.4 —— 可交互、自动调用工具的 Agent
+
+w2d1 chat() 支持 tools → w2d2 schema 绑定 → w2d3 Agent Loop → w2d4 鲁棒性
+→ w2d5 接入 chat.py + System Prompt → w2d6 第二个工具 → w2d7 收官
