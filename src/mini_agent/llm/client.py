@@ -26,6 +26,8 @@ class DeepSeekLLM(BaseLLM):
                             json=data,
                             timeout=30
                             )
+        if response.status_code != 200:
+            print("API 错误响应:", response.text)
         response.raise_for_status()
         response_data=response.json()
         message=response_data["choices"][0]["message"]
