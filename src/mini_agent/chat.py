@@ -5,12 +5,15 @@ from mini_agent.tools import (
     calculator, calculator_schema,
     get_current_time, get_current_time_schema,
     read_file, read_file_schema,
+    list_files, list_files_schema,
 )
 def main ():
     llm=DeepSeekLLM()
     registry=ToolRegistry()
     registry.register("calculator",calculator,calculator_schema)
     registry.register("get_current_time",get_current_time,get_current_time_schema)
+    registry.register("read_file",read_file,read_file_schema)
+    registry.register("list_files",list_files,list_files_schema)
     agent=Agent(llm,registry)
     messages=[
         {
