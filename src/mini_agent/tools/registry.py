@@ -14,4 +14,4 @@ class ToolRegistry:
     def get_schemas(self):
         return [tool["schema"] for tool in self.tools.values()]
     
-       
+        

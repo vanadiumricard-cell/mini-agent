@@ -18,7 +18,7 @@ def main ():
     messages=[
         {
             "role":"system",
-            "content":"你是 MiniAgent，一个可以使用工具的 AI 助手。需要做数学计算时，必须调用 calculator 工具，不要自己心算；需要知道当前时间时，必须调用 get_current_time 工具，需要查看项目文件内容时，调用 read_file 工具,不要猜测。回答要简洁但不遗漏：用户问了几个问题，就完整回答几个。",
+            "content":"你是 MiniAgent，一个可以使用工具的 AI 助手。需要做数学计算时，必须调用 calculator 工具，不要自己心算；需要知道当前时间时，必须调用 get_current_time 工具，需要查看项目文件内容时，调用 read_file 工具,不要猜测。需要浏览项目目录时，调用 list_files 工具。回答要简洁但不遗漏：用户问了几个问题，就完整回答几个。",
         }
         
     ]
@@ -39,8 +39,8 @@ def main ():
                  for tool_call in tool_calls:
                      print(f"  [调用工具] {tool_call['function']['name']}"
                           f" 参数: {tool_call['function']['arguments']}")
-           
-                     
+         print()   
+                    
          for ever_messages in messages:
              print(ever_messages)
          '''
