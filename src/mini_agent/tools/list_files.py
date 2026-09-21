@@ -1,6 +1,6 @@
 from pathlib import Path
 PROJECT_ROOT=Path(__file__).resolve().parents[3]
-SKIP_DIRS={".venv",".git","__pycache__",".pytext_cache"}
+SKIP_DIRS={".venv",".git","__pycache__",".pytest_cache"}
 def list_files(path:str=".",pattern:str="*")->str:
     dir_path=(PROJECT_ROOT/path).resolve()
     if not dir_path.is_relative_to(PROJECT_ROOT):
