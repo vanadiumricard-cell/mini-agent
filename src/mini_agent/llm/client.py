@@ -8,7 +8,7 @@ class DeepSeekLLM(BaseLLM):
         load_dotenv()
         self.api_key=os.getenv("DEEPSEEK_API_KEY")
         self.url="https://api.deepseek.com/chat/completions"
-        self.model="deepseek-v4-flash"
+        self.model="deepseek-flash"
     def chat(self,messages:list[dict],tools:list[dict]|None=None)->str:
         headers={
             "Authorization": f"Bearer {self.api_key}",

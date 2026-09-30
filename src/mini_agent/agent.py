@@ -26,7 +26,7 @@ class Agent:
             tool=self.tool_registry.get(name)
             if tool is None:
                  return f"找不到工具{name}"
-            return tool (**arguments)
+            return tool.run (**arguments)
         except Exception as error:
              return f"错误{error}"
 
