@@ -5,6 +5,7 @@ from mini_agent.tools import (
     CalculatorTool,CurrentTimeTool,
     ReadFileTool,ListFilesTool,WriteFileTool,
 )
+from mini_agent.context import context_report
 def main ():
     llm=DeepSeekLLM()
     registry=ToolRegistry()
@@ -44,5 +45,6 @@ def main ():
              print(ever_messages)
          '''
          print(f"agent:{message['content']}")
+         print(f"  [{context_report(messages)}]")
 if __name__ == "__main__":
     main()

@@ -6,6 +6,7 @@ from mini_agent.llm.base import BaseLLM
 class DeepSeekLLM(BaseLLM):
     def __init__(self):
         load_dotenv()
+        self.last_usage = None
         self.api_key=os.getenv("DEEPSEEK_API_KEY")
         self.url="https://api.deepseek.com/chat/completions"
         self.model="deepseek-flash"
@@ -30,6 +31,7 @@ class DeepSeekLLM(BaseLLM):
             print("API 错误响应:", response.text)
         response.raise_for_status()
         response_data=response.json()
+        self.last_usage = response_data.get("usage")
         message=response_data["choices"][0]["message"]
         return message
         
