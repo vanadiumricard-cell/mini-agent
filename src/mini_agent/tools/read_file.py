@@ -16,7 +16,7 @@ class ReadFileTool(Tool):
         },
         "end_line":{
             "type":"integer",
-            "dsecription":"结束行号(可选)，单次最多读取200行"
+            "description":"结束行号(可选)，单次最多读取200行"
         },
     }
     required = ["path"]

@@ -53,3 +53,10 @@ Day 7  真正的 Tool Calling
 
 w2d1 chat() 支持 tools → w2d2 schema 绑定 → w2d3 Agent Loop → w2d4 鲁棒性
 → w2d5 接入 chat.py + System Prompt → w2d6 第二个工具 → w2d7 收官
+# Week 3：文件系统工具与 Coding Agent 雏形（v0.6）
+
+## 本周目标
+给 Agent 装上文件系统能力（读/列/写）；第一次"读懂项目"实战；context 初体验
+
+w3d1 read_file（工作区边界） → w3d2 list_files（glob+噪音过滤） → w3d3 项目理解实战
+→ w3d4 write_file（写入确认） → w3d5 Tool 基类重构 → w3d6 分页读取 → w3d7 收官

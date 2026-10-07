@@ -3,6 +3,7 @@ class ToolRegistry:
         self.tools = {}
 
     def register(self, tool):
+        tool.validate() 
         self.tools[tool.name] = tool
 
     def get(self, name):
