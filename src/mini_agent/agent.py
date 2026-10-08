@@ -1,4 +1,4 @@
-
+from mini_agent.context import build_context
 import json
 class Agent:
    def __init__(self,llm,tool_registry):
@@ -6,7 +6,8 @@ class Agent:
          self.tool_registry=tool_registry
    def run(self,messages,max_iterations=10):
         for _ in range(max_iterations):
-             message=self.llm.chat(messages,tools=self.tool_registry.get_schemas())
+             context=build_context(messages)
+             message=self.llm.chat(context,tools=self.tool_registry.get_schemas())
              messages.append(message)
              tool_calls=message.get("tool_calls")
              if not tool_calls:
