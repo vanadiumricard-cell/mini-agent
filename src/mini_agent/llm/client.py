@@ -19,7 +19,7 @@ class DeepSeekLLM(BaseLLM):
             "messages":messages,
             "stream":False
         }
-        if tools is not None:
+        if tools:
             data["tools"]=tools
 
         response=httpx.post(self.url,
