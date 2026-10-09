@@ -84,6 +84,7 @@ def summarize_history(messages:list[dict],llm,max_tokens:int=MAX_CONTEXT_TOKENS)
     summary_message={"role":"system","content":f"【早期对话摘要】\n{summary}"}
     messages[:]=messages[:prefix_start]+[summary_message]+messages[cut:]
     return True
+
       
           
 
