@@ -5,8 +5,8 @@ from mini_agent.tools import (
     CalculatorTool,CurrentTimeTool,
     ReadFileTool,ListFilesTool,WriteFileTool,
 )
-from mini_agent.context import context_report,build_context
-def main ():
+from mini_agent.memory import MemoryManager
+def main():
     llm=DeepSeekLLM()
     registry=ToolRegistry()
     registry.register(CalculatorTool())
@@ -15,17 +15,18 @@ def main ():
     registry.register(ListFilesTool())
     registry.register(WriteFileTool())
     agent=Agent(llm,registry)
-    messages=[
-        {
-            "role":"system",
-            "content":"你是 MiniAgent，一个可以使用工具的 AI 助手。需要做数学计算时，必须调用 calculator 工具，不要自己心算；\
-                需要知道当前时间时，必须调用 get_current_time 工具，\
-                需要查看项目文件内容时，调用 read_file 工具,不要猜测。\
-                需要浏览项目目录时，调用 list_files 工具。需要创建或写入文件时，调用 write_file 工具（写入前会请求用户确认）,\
-                回答要简洁但不遗漏：用户问了几个问题，就完整回答几个。",
-        }
-        
-    ]
+    memory=MemoryManager(llm)
+    memory.add({
+        "role":"system",
+        "content":"你是 MiniAgent，一个可以使用工具的 AI 助手。"
+                  "需要做数学计算时，必须调用 calculator 工具，不要自己心算；"
+                  "需要知道当前时间时，必须调用 get_current_time 工具；"
+                  "需要查看项目文件内容时，调用 read_file 工具，不要猜测；"
+                  "需要浏览项目目录时，调用 list_files 工具；"
+                  "需要创建或写入文件时，调用 write_file 工具（写入前会请求用户确认）。"
+                  "回答要简洁但不遗漏：用户问了几个问题，就完整回答几个。",
+    })
+
     print("agent已启动")
     print("输入exit退出")
     while True:
@@ -33,9 +34,9 @@ def main ():
          if user_input=="exit":
            print("agent已结束")
            break
-         messages.append({"role":"user","content":user_input})
-         before = len(messages)
-         message=agent.run(messages)
+         memory.add({"role":"user","content":user_input})
+         
+         message=agent.run(memory)
          '''
          for new_messages in messages[before:]:
              tool_calls=new_messages.get("tool_calls")
@@ -49,6 +50,6 @@ def main ():
              print(ever_messages)
          '''
          print(f"agent:{message['content']}")
-         print(f"  [{context_report(build_context(messages))}]")
+         print(f"  [{memory.stats()}]")
 if __name__ == "__main__":
     main()

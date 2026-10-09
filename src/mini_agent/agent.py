@@ -1,21 +1,19 @@
-from mini_agent.context import build_context,summarize_history
 import json
 class Agent:
    def __init__(self,llm,tool_registry):
          self.llm=llm
          self.tool_registry=tool_registry
-   def run(self,messages,max_iterations=10):
-        summarize_history(messages,self.llm)
+   def run(self,memory,max_iterations=10):
+        memory.compress()
         for _ in range(max_iterations):
-             context=build_context(messages)
-             message=self.llm.chat(context,tools=self.tool_registry.get_schemas())
-             messages.append(message)
+             message=self.llm.chat(memory.context(),tools=self.tool_registry.get_schemas())
+             memory.add(message)
              tool_calls=message.get("tool_calls")
              if not tool_calls:
                   return message
              for tool_call in tool_calls:
                   result=self.execute_tool_call(tool_call)
-                  messages.append({
+                  memory.add({
                        "role":"tool",
                        "tool_call_id":tool_call["id"],
                        "content":str(result),
