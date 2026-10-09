@@ -28,7 +28,9 @@ for text in make_turns():
     
     sizes_b.append(estimate_messages_tokens(view))
     storage_b.append(fake_reply())
-
+last_view = build_context(storage_b, max_tokens=BUDGET)
+assert estimate_messages_tokens(last_view) > BUDGET * 0.7, "窗口没有装满预算——检查 build_context"
+print("窗口装满预算 ✓")
 print("C 策略运行中（每轮摘要会真实调用 API）...")
 memory_c = MemoryManager(llm, max_tokens=BUDGET)
 memory_c.add({"role": "system", "content": "你是 MiniAgent。"})

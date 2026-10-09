@@ -60,3 +60,11 @@ w2d1 chat() 支持 tools → w2d2 schema 绑定 → w2d3 Agent Loop → w2d4 鲁
 
 w3d1 read_file（工作区边界） → w3d2 list_files（glob+噪音过滤） → w3d3 项目理解实战
 → w3d4 write_file（写入确认） → w3d5 Tool 基类重构 → w3d6 分页读取 → w3d7 收官
+# Week 4：记忆与上下文管理（v0.7）
+
+## 本周目标
+给 Agent 装"油表"和"记忆管家"：token 预算、滑动窗口、摘要压缩、MemoryManager
+
+w4d1 token 估算与 context 预算（油表） → w4d2 滑动窗口（user 边界切分）
+→ w4d3 摘要压缩（滚动摘要） → w4d4 MemoryManager 封装
+→ w4d5 长对话实测 → w4d6 三策略对比（揪出 roles bug） → w4d7 收官
