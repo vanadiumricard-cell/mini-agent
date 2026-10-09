@@ -1,10 +1,11 @@
-from mini_agent.context import build_context
+from mini_agent.context import build_context,summarize_history
 import json
 class Agent:
    def __init__(self,llm,tool_registry):
          self.llm=llm
          self.tool_registry=tool_registry
    def run(self,messages,max_iterations=10):
+        summarize_history(messages,self.llm)
         for _ in range(max_iterations):
              context=build_context(messages)
              message=self.llm.chat(context,tools=self.tool_registry.get_schemas())
