@@ -31,14 +31,14 @@ def build_context(messages:list[dict],max_tokens:int=MAX_CONTEXT_TOKENS)->list[d
     kept=[]
     used=estimate_messages_tokens(system)
     for message in reversed(rest):
-        cost=estimate_messages_tokens(str(message))
+        cost=estimate_tokens(str(message))
         if kept and used+cost>max_tokens:
             break
         kept.append(message)
         used+=cost
     kept.reverse()
     # 把窗口起点推到最近的 user 消息（协议安全）
-    while kept and kept[0].get("roles")!="user":
+    while kept and kept[0].get("role")!="user":
         kept.pop(0)
     # 兜底：预算太小导致窗口为空时，保住最后一轮 user 起始的片段
     if not kept:

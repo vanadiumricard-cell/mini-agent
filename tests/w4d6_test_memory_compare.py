@@ -25,6 +25,7 @@ sizes_b = []
 for text in make_turns():
     storage_b.append({"role": "user", "content": text})
     view = build_context(storage_b, max_tokens=BUDGET)
+    
     sizes_b.append(estimate_messages_tokens(view))
     storage_b.append(fake_reply())
 
