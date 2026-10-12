@@ -1,4 +1,5 @@
-print("tools 包已加载")
+import sys
+print("tools 包已加载",file=sys.stderr)
 from mini_agent.tools.base import Tool
 from mini_agent.tools.calculator import CalculatorTool
 from mini_agent.tools.current_time import CurrentTimeTool
