@@ -11,7 +11,7 @@ class MCPClient:
     def __init__(self,command):
         self.command=command
         self.process=None
-        self.sever_info=None
+        self.server_info=None
         self._next_id=1
     #  1. 进程生命周期 
     def start(self):

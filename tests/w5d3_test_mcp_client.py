@@ -34,7 +34,7 @@ assert result["isError"] is True
 # ── 5. 协议错误（未知工具 → 抛异常）──
 try:
     client.call_tool("weather", {})
-    print("没有抛出异常，异常！")
+    print("没有抛出异常，异常！") 
 except RuntimeError as error:
     print("协议错误已捕获:", error)
 print()
