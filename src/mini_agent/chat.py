@@ -1,19 +1,31 @@
+import sys
+from pathlib import Path
+from mini_agent.mcp import MCPClient,register_mcp_tools
 from mini_agent.agent import Agent
 from mini_agent.llm.client import DeepSeekLLM
 from mini_agent.tools import (
     ToolRegistry,
-    CalculatorTool,CurrentTimeTool,
+    CurrentTimeTool,
     ReadFileTool,ListFilesTool,WriteFileTool,
 )
 from mini_agent.memory import MemoryManager
+ROOT=Path(__file__).resolve().parents[2]
+SERVER_COMMAND=[sys.executable,str(ROOT/"mcp_servers"/"calculator_server.py")]
+
 def main():
     llm=DeepSeekLLM()
+    mcp_client=MCPClient(SERVER_COMMAND)
+    mcp_client.start()
+    mcp_client.initialize()
+    print(f"mcp已连接：{mcp_client.server_info}")
     registry=ToolRegistry()
-    registry.register(CalculatorTool())
+   
     registry.register(CurrentTimeTool())
     registry.register(ReadFileTool())
     registry.register(ListFilesTool())
     registry.register(WriteFileTool())
+    count = register_mcp_tools(registry, mcp_client)
+    print(f"已从 MCP 接入 {count} 个工具 | 注册表: {list(registry.tools.keys())}")
     agent=Agent(llm,registry)
     memory=MemoryManager(llm)
     memory.add({
@@ -29,27 +41,31 @@ def main():
 
     print("agent已启动")
     print("输入exit退出")
-    while True:
+    try:
+       while True:
          user_input=input("\n用户:" )
          if user_input=="exit":
            print("agent已结束")
            break
          memory.add({"role":"user","content":user_input})
-         
+         before = len(memory.messages)
          message=agent.run(memory)
-         '''
-         for new_messages in messages[before:]:
+         
+         for new_messages in memory.messages[before:]:
              tool_calls=new_messages.get("tool_calls")
              if tool_calls:
                  for tool_call in tool_calls:
                      print(f"  [调用工具] {tool_call['function']['name']}"
                           f" 参数: {tool_call['function']['arguments']}")
          print()   
-                    
+         '''          
          for ever_messages in messages:
              print(ever_messages)
          '''
          print(f"agent:{message['content']}")
          print(f"  [{memory.stats()}]")
+    finally:
+       # try finally语法：无论try内代码怎么退出（报错，正常运行，包括 Ctrl+C），都会执行finally内代码：服务器进程都要回收
+       mcp_client.close()
 if __name__ == "__main__":
     main()

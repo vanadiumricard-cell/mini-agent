@@ -9,6 +9,7 @@
 """
 import json
 import sys
+import os
 from mini_agent.tools import CalculatorTool, ToolRegistry
 sys.stdin.reconfigure(encoding="utf-8")
 sys.stdout.reconfigure(encoding="utf-8")
@@ -46,6 +47,8 @@ def handle(message):
     if method=="tools/call":
          name = params.get("name")
          arguments = params.get("arguments", {})
+         print(f"[calculator-server pid={os.getpid()}] tools/calls{name}{arguments}",
+               file=sys.stderr,flush=True)
          tool = registry.get(name)
          if tool is None:
             # 协议层错误：请求本身不合法
