@@ -6,28 +6,35 @@ from mini_agent.llm.client import DeepSeekLLM
 from mini_agent.tools import (
     ToolRegistry,
     CurrentTimeTool,
-    ReadFileTool,ListFilesTool,WriteFileTool,
+    ReadFileTool,ListFilesTool,WriteFileTool,CalculatorTool
 )
 from mini_agent.memory import MemoryManager
 ROOT=Path(__file__).resolve().parents[2]
 SERVER_COMMAND=[sys.executable,str(ROOT/"mcp_servers"/"calculator_server.py")]
 
-def main():
+def main(budget=None,use_mcp=True):
     llm=DeepSeekLLM()
-    mcp_client=MCPClient(SERVER_COMMAND)
-    mcp_client.start()
-    mcp_client.initialize()
-    print(f"mcp已连接：{mcp_client.server_info}")
     registry=ToolRegistry()
-   
     registry.register(CurrentTimeTool())
     registry.register(ReadFileTool())
     registry.register(ListFilesTool())
     registry.register(WriteFileTool())
-    count = register_mcp_tools(registry, mcp_client)
-    print(f"已从 MCP 接入 {count} 个工具 | 注册表: {list(registry.tools.keys())}")
+
+    mcp_client=None
+    if use_mcp:
+        mcp_client=MCPClient(SERVER_COMMAND)
+        mcp_client.start()
+        mcp_client.initialize()
+        print(f"mcp已连接：{mcp_client.server_info}")
+        count=register_mcp_tools(registry,mcp_client)
+        print(f"已从 MCP 接入 {count} 个工具")
+    else:
+        # 降级模式：没有 MCP 时，本地 calculator 顶上（本尊回家）
+        registry.register(CalculatorTool())
+        print("未挂载 MCP（降级模式：本地工具）")
+    print(f"注册表: {list(registry.tools.keys())}")
     agent=Agent(llm,registry)
-    memory=MemoryManager(llm)
+    memory=MemoryManager(llm,max_tokens=budget) if budget else MemoryManager(llm)
     memory.add({
         "role":"system",
         "content":"你是 MiniAgent，一个可以使用工具的 AI 助手。"
@@ -66,6 +73,7 @@ def main():
          print(f"  [{memory.stats()}]")
     finally:
        # try finally语法：无论try内代码怎么退出（报错，正常运行，包括 Ctrl+C），都会执行finally内代码：服务器进程都要回收
-       mcp_client.close()
+       if mcp_client is not None:
+           mcp_client.close()
 if __name__ == "__main__":
     main()
