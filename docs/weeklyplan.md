@@ -68,3 +68,15 @@ w3d1 read_file（工作区边界） → w3d2 list_files（glob+噪音过滤） �
 w4d1 token 估算与 context 预算（油表） → w4d2 滑动窗口（user 边界切分）
 → w4d3 摘要压缩（滚动摘要） → w4d4 MemoryManager 封装
 → w4d5 长对话实测 → w4d6 三策略对比（揪出 roles bug） → w4d7 收官
+# Week 5：MCP——接入外部工具生态（v0.8）
+
+## 本周目标
+让 MiniAgent 按 MCP 协议连接外部工具服务器：协议、服务器、客户端、适配器、自愈
+
+w5d1 MCP 概念 + stdio 传输（echo 服务器）
+→ w5d2 真正的 MCP 服务器（initialize / tools/list / tools/call）
+→ w5d3 MCPClient（进程 / 协议 / 语义三层）
+→ w5d4 MCPTool 适配器（远程工具接入 ToolRegistry）
+→ w5d5 端到端（chat.py 挂载，calculator 搬家）
+→ w5d6 扩展（roll_dice）+ 韧性（错误分层 + 自愈）
+→ w5d7 收官
