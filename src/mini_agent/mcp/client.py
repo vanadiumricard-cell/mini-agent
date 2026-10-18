@@ -7,6 +7,8 @@
 """
 import json
 import subprocess
+class MCPConnectionError(RuntimeError):
+    """连接层故障：服务器崩了 / 管道断了（可以重连再试）"""
 class MCPClient:
     def __init__(self,command):
         self.command=command
@@ -24,18 +26,35 @@ class MCPClient:
         )
     def close(self):
         if self.process is None:
+            #子对象不存在
             return
-        self.process.stdin.close()
+        try:
+            self.process.stdin.close()
+        except(BrokenPipeError,OSError):
+            pass
+        # 管道可能已经断了——收尾时不要被它绊倒:如果是BrokenPipeError,OSError这两种错误类型（内置），就pass(不理他，继续运行)，如果是预设外的错误类型，依旧直接报错
         self.process.wait(timeout=5)
+    def restart(self):
+        """自愈：重拉服务器进程 + 重新握手"""
+        try:
+            self.close()
+        except Exception:
+            pass
+        self.start()
+        self.initialize()
     # 2. 协议收发 
     def _send(self,message):
-        self.process.stdin.write(json.dumps(message,ensure_ascii=False)+"\n")
-        self.process.stdin.flush()
+        try:
+            self.process.stdin.write(json.dumps(message,ensure_ascii=False)+"\n")
+            self.process.stdin.flush()
+        except(BrokenPipeError,OSError) as err:
+            raise MCPConnectionError(f"管道已断{err}")from err
+            #管道在读端写段都关闭后，会自动回收，子进程一端被close，kill，管道依然正常，依然可以写入（管道正常写入，但子进程无法接收不会报错）
     def _recv(self):
         while True:
             line = self.process.stdout.readline()
             if not line:
-                raise RuntimeError("服务器已退出（stdout）达到eof")
+                raise MCPConnectionError("服务器已退出（stdout）达到eof")
             message=json.loads(line)
             if "id"in message: # 有 id 才是响应,通知直接跳过
                 return message

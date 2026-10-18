@@ -10,12 +10,21 @@
 import json
 import sys
 import os
-from mini_agent.tools import CalculatorTool, ToolRegistry
+import random
+from mini_agent.tools import CalculatorTool, ToolRegistry,Tool
 sys.stdin.reconfigure(encoding="utf-8")
 sys.stdout.reconfigure(encoding="utf-8")
 PROTOCOL_VERSION = "2026-10-12"
 registry = ToolRegistry()
 registry.register(CalculatorTool())
+class RollDiceTool(Tool):
+    """服务器自有工具：外面（mini_agent.tools）并没有这个工具"""
+    name = "roll_dice"
+    description = "掷一个 1-6 的骰子，返回点数"
+
+    def run(self):
+        return random.randint(1, 6)
+registry.register(RollDiceTool())
 def ok(request_id, result):
     return {"jsonrpc": "2.0", "id": request_id, "result": result}
 def error(request_id, code, message):

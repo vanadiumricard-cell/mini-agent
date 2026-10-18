@@ -3,6 +3,7 @@
 远程工具活在另一个进程里，但经过这层包装，
 ToolRegistry 和 Agent 完全分不出它和本地工具的区别。
 """
+from mini_agent.mcp.client import MCPConnectionError
 from mini_agent.tools import Tool
 class MCPTool(Tool):
     def __init__(self,client,tool_info):
@@ -13,7 +14,14 @@ class MCPTool(Tool):
         self.parameters=schema.get("properties",{})
         self.required=schema.get("required",[])
     def run(self,**kwargs):
-        result=self.client.call_tool(self.name,kwargs)
+        try:
+            result=self.client.call_tool(self.name,kwargs)
+        except MCPConnectionError:
+            # 连接断了 → 重连一次再试（简单版自愈）
+            # 注意：重试有"重复执行"风险（请求可能已送达）——只对幂等工具安全
+            #幂等工具：重复执行没有区别的工具，计算器，非幂等工具：读写，命令行，重复执行容易出问题
+            self.client.restart()
+            result=self.client.call_tool(self.name,kwargs)
         texts=[]
         for block in result.get("content",[]):
             if block.get("type")=="text":
