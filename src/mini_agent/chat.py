@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-from mini_agent.mcp import MCPClient,register_mcp_tools
+from mini_agent.mcp import MCPClient,register_mcp_tools,MCPTool
 from mini_agent.agent import Agent
 from mini_agent.llm.client import DeepSeekLLM
 from mini_agent.tools import (
@@ -14,6 +14,35 @@ SERVER_COMMAND=[sys.executable,str(ROOT/"mcp_servers"/"calculator_server.py")]
 def stream_print(piece):
     sys.stdout.write(piece)
     sys.stdout.flush()
+def handle_command(text,memory,registry,llm):
+    """处理 / 命令：只改本地状态，不与 LLM 对话"""
+    command=text.split()[0].lower()
+    if command=="/help":
+        print("── 可用命令 ──")
+        print("  /help     显示这个帮助")
+        print("  /stats    会话统计（工具 / 消息 / token / usage）")
+        print("  /tools    列出已注册的工具（含 MCP 标记）")
+        print("  /clear    清空对话（保留 system 提示词）")
+        print("  exit      退出")
+    elif command=="/stats":
+        print("── 会话统计 ──")
+        print(f"  工具 ({len(registry.tools)}): {', '.join(registry.tools.keys())}")
+        print(f"  消息: {len(memory.messages)} 条 | 压缩: {memory.compress_count} 次")
+        print(f"  {memory.stats()}")
+        usage=getattr(llm,"last_usage",None)
+        print(f"  上次 API usage: {usage if usage else '（暂无）'}")
+    elif command=="/tools":
+        print(f"── 已注册工具（{len(registry.tools)}）──")
+        for tool in registry.tools.values():
+            tag="[MCP]" if isinstance(tool,MCPTool) else "[本地]"
+            print(f"  {tag:<6} {tool.name:<16} {tool.description}")
+    elif command=="/clear":
+        keep=[m for m in memory.messages[:1] if m.get("role")=="system"]
+        memory.messages[:]=keep
+        memory.compress_count=0
+        print("会话已清空（保留 system 提示词）")
+    else:
+        print(f"未知命令：{command}（试试 /help）")
 def main(budget=None,use_mcp=True):
     llm=DeepSeekLLM()
     registry=ToolRegistry()
@@ -49,13 +78,16 @@ def main(budget=None,use_mcp=True):
     })
 
     print("agent已启动")
-    print("输入exit退出")
+    print("输入 /help查看命令，输入exit退出")
     try:
        while True:
-         user_input=input("\n用户:" )
-         if user_input=="exit":
+         user_input=input("\n用户:" ).strip()
+         if user_input in ("exit","/exit"):
            print("agent已结束")
            break
+         if user_input.startswith("/"):
+             handle_command(user_input,memory,registry,llm)
+             continue
          memory.add({"role":"user","content":user_input})
          before = len(memory.messages)
          print("agent:",end="",flush=True)
