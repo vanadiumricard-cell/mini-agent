@@ -11,7 +11,9 @@ from mini_agent.tools import (
 from mini_agent.memory import MemoryManager
 ROOT=Path(__file__).resolve().parents[2]
 SERVER_COMMAND=[sys.executable,str(ROOT/"mcp_servers"/"calculator_server.py")]
-
+def stream_print(piece):
+    sys.stdout.write(piece)
+    sys.stdout.flush()
 def main(budget=None,use_mcp=True):
     llm=DeepSeekLLM()
     registry=ToolRegistry()
@@ -56,8 +58,9 @@ def main(budget=None,use_mcp=True):
            break
          memory.add({"role":"user","content":user_input})
          before = len(memory.messages)
-         message=agent.run(memory)
-         
+         print("agent:",end="",flush=True)
+         message=agent.run(memory,on_token=stream_print)
+         print()
          for new_messages in memory.messages[before:]:
              tool_calls=new_messages.get("tool_calls")
              if tool_calls:
@@ -69,7 +72,7 @@ def main(budget=None,use_mcp=True):
          for ever_messages in messages:
              print(ever_messages)
          '''
-         print(f"agent:{message['content']}")
+        
          print(f"  [{memory.stats()}]")
     finally:
        # try finally语法：无论try内代码怎么退出（报错，正常运行，包括 Ctrl+C），都会执行finally内代码：服务器进程都要回收

@@ -44,6 +44,7 @@ class DeepSeekLLM(BaseLLM):
         self.last_usage=None
         content_parts=[]
         role="assistant"
+        tool_states={}
         finish_reason=None
         with httpx.stream("POST",self.url,headers=headers,json=data,timeout=60) as response:
             """
@@ -68,16 +69,35 @@ class DeepSeekLLM(BaseLLM):
                 choices=chunk.get("choices") or []
                 if not choices:
                     continue
-                choice=choices[0]
+                choice=choices[0] 
                 delta=choice.get("delta") or {}
                 role=delta.get("role",role)
                 piece=delta.get("content") or ""
                 if piece:
                     content_parts.append(piece)
                     on_token(piece)
-                if choice.get("finish_reason"):
-                    finish_reason=choice["finish_reason"]
-        return {"role":role,"content":"".join(content_parts)}
+                # 工具调用碎片：按 index 分组拼装
+                for tc in delta.get("tool_calls") or []:
+                    idx=tc.get("index",0)
+                    state=tool_states.setdefault(
+                        idx,{"id":None,"type":"function","name":"","arguments":""})
+                    if tc.get("id"):
+                        state["id"]=tc["id"]
+                    if tc.get("type"):
+                        state["type"]=tc["type"]
+                    fn=tc.get("function") or {}
+                    if fn.get("name"):
+                        state["name"]=fn["name"]          # name 通常一次性给全
+                    if fn.get("arguments"):
+                        state["arguments"]+=fn["arguments"]  # arguments 是碎片，累加
+        message={"role":role,"content":"".join(content_parts) or None}
+        if tool_states:
+            message["tool_calls"]=[
+                {"id":state["id"],"type":state["type"],
+                 "function":{"name":state["name"],"arguments":state["arguments"]}}
+                for _,state in sorted(tool_states.items())
+            ]
+        return message
     
         
         

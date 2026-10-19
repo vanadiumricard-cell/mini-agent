@@ -3,10 +3,10 @@ class Agent:
    def __init__(self,llm,tool_registry):
          self.llm=llm
          self.tool_registry=tool_registry
-   def run(self,memory,max_iterations=10):
+   def run(self,memory,max_iterations=10,on_token=None):
         memory.compress()
         for _ in range(max_iterations):
-             message=self.llm.chat(memory.context(),tools=self.tool_registry.get_schemas())
+             message=self.llm.chat(memory.context(),tools=self.tool_registry.get_schemas(),on_token=on_token)
              memory.add(message)
              tool_calls=message.get("tool_calls")
              if not tool_calls:
