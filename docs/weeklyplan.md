@@ -80,3 +80,11 @@ w5d1 MCP 概念 + stdio 传输（echo 服务器）
 → w5d5 端到端（chat.py 挂载，calculator 搬家）
 → w5d6 扩展（roll_dice）+ 韧性（错误分层 + 自愈）
 → w5d7 收官
+# Week 6：CLI 与用户体验（v0.9）
+
+## 本周目标
+从"能跑的框架"到"能用的产品"：命令行入口、流式输出、交互命令、网络韧性
+
+w6d1 CLI 骨架（argparse + console script） → w6d2 流式输出（SSE + on_token）
+→ w6d3 流式工具调用（碎片拼装 + 接入 Agent） → w6d4 交互命令（/help /stats /tools /clear）
+→ w6d5 网络韧性（重试 / 退避 / 友好报错 / 失败回滚） → w6d6 打磨 → w6d7 收官
