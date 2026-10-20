@@ -1,4 +1,5 @@
 import sys
+import httpx
 from pathlib import Path
 from mini_agent.mcp import MCPClient,register_mcp_tools,MCPTool
 from mini_agent.agent import Agent
@@ -88,8 +89,22 @@ def main(budget=None,use_mcp=True):
          if user_input.startswith("/"):
              handle_command(user_input,memory,registry,llm)
              continue
+         before = len(memory.messages)          # ← 注意：先记位置，再追加
          memory.add({"role":"user","content":user_input})
-         before = len(memory.messages)
+         print("agent:",end="",flush=True)
+         try:
+             message=agent.run(memory,on_token=stream_print)
+         except (httpx.TimeoutException,httpx.NetworkError):
+             print()
+             print("  [网络问题] 超时或连接中断——这句没答完，重试一次吧")
+             del memory.messages[before:]        # 回滚这轮，别留半截历史
+             continue
+         except httpx.HTTPStatusError as err:
+             print()
+             print(f"  [API 错误] HTTP {err.response.status_code}：{err.response.text[:200]}")
+             del memory.messages[before:]
+             continue
+         print() 
          print("agent:",end="",flush=True)
          message=agent.run(memory,on_token=stream_print)
          print()
