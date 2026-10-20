@@ -3,8 +3,8 @@ class Agent:
    def __init__(self,llm,tool_registry):
          self.llm=llm
          self.tool_registry=tool_registry
-   def run(self,memory,max_iterations=10,on_token=None):
-        memory.compress()
+   def run(self,memory,max_iterations=10,on_token=None,on_tool=None):
+        memory.compress() 
         for _ in range(max_iterations):
              message=self.llm.chat(memory.context(),tools=self.tool_registry.get_schemas(),on_token=on_token)
              memory.add(message)
@@ -12,6 +12,8 @@ class Agent:
              if not tool_calls:
                   return message
              for tool_call in tool_calls:
+                  if on_tool is not None:
+                      on_tool(tool_call) 
                   result=self.execute_tool_call(tool_call)
                   memory.add({
                        "role":"tool",

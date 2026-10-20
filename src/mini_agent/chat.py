@@ -12,9 +12,7 @@ from mini_agent.tools import (
 from mini_agent.memory import MemoryManager
 ROOT=Path(__file__).resolve().parents[2]
 SERVER_COMMAND=[sys.executable,str(ROOT/"mcp_servers"/"calculator_server.py")]
-def stream_print(piece):
-    sys.stdout.write(piece)
-    sys.stdout.flush()
+
 def handle_command(text,memory,registry,llm):
     """处理 / 命令：只改本地状态，不与 LLM 对话"""
     command=text.split()[0].lower()
@@ -44,6 +42,9 @@ def handle_command(text,memory,registry,llm):
         print("会话已清空（保留 system 提示词）")
     else:
         print(f"未知命令：{command}（试试 /help）")
+def show_tool(tool_call):
+    print(f"  [调用工具] {tool_call['function']['name']}"
+          f" 参数: {tool_call['function']['arguments']}")
 def main(budget=None,use_mcp=True):
     llm=DeepSeekLLM()
     registry=ToolRegistry()
@@ -54,12 +55,26 @@ def main(budget=None,use_mcp=True):
 
     mcp_client=None
     if use_mcp:
-        mcp_client=MCPClient(SERVER_COMMAND)
-        mcp_client.start()
-        mcp_client.initialize()
-        print(f"mcp已连接：{mcp_client.server_info}")
-        count=register_mcp_tools(registry,mcp_client)
-        print(f"已从 MCP 接入 {count} 个工具")
+        try:
+              mcp_client=MCPClient(SERVER_COMMAND)
+              mcp_client.start()
+              mcp_client.initialize()
+              print(f"mcp已连接：{mcp_client.server_info}")
+              count=register_mcp_tools(registry,mcp_client)
+              print(f"已从 MCP 接入 {count} 个工具")
+        except Exception as err:
+            print(f"[警告] MCP 挂载失败（{type(err).__name__}: {err}）→ 降级为本地工具")
+            if mcp_client is not None:
+                try:
+                    mcp_client.close()
+                except Exception:
+                    pass
+                mcp_client=None
+                '''
+                兜底清理：
+                如果 mcp_client 已经实例化，调用`close()`关闭子进程、管道（嵌套 try-pass，防止 close 本身又报错卡死清理流程）
+                '''
+            registry.register(CalculatorTool())
     else:
         # 降级模式：没有 MCP 时，本地 calculator 顶上（本尊回家）
         registry.register(CalculatorTool())
@@ -82,18 +97,30 @@ def main(budget=None,use_mcp=True):
     print("输入 /help查看命令，输入exit退出")
     try:
        while True:
-         user_input=input("\n用户:" ).strip()
+         try:
+             user_input=input("\n用户:" ).strip()
+         except (KeyboardInterrupt, EOFError):
+             print("\n再见！")
+             break#ctrl c退出，跳出while循环，循环结束
          if user_input in ("exit","/exit"):
-           print("agent已结束")
-           break
+             print("agent已结束")
+             break
+         if not user_input:
+             continue#空格空输入，本轮终止，循环继续 
          if user_input.startswith("/"):
              handle_command(user_input,memory,registry,llm)
              continue
          before = len(memory.messages)          # ← 注意：先记位置，再追加
          memory.add({"role":"user","content":user_input})
-         print("agent:",end="",flush=True)
+         state={"started":False}
+         def stream_print(piece):
+             if not state["started"]:
+                 state["started"]=True
+                 print("agent:",end="",flush=True)      # 第一段文字到达时才打前缀
+             sys.stdout.write(piece)
+             sys.stdout.flush()
          try:
-             message=agent.run(memory,on_token=stream_print)
+             message=agent.run(memory,on_token=stream_print,on_tool=show_tool)
          except (httpx.TimeoutException,httpx.NetworkError):
              print()
              print("  [网络问题] 超时或连接中断——这句没答完，重试一次吧")
@@ -105,9 +132,7 @@ def main(budget=None,use_mcp=True):
              del memory.messages[before:]
              continue
          print() 
-         print("agent:",end="",flush=True)
-         message=agent.run(memory,on_token=stream_print)
-         print()
+         '''
          for new_messages in memory.messages[before:]:
              tool_calls=new_messages.get("tool_calls")
              if tool_calls:
@@ -115,7 +140,7 @@ def main(budget=None,use_mcp=True):
                      print(f"  [调用工具] {tool_call['function']['name']}"
                           f" 参数: {tool_call['function']['arguments']}")
          print()   
-         '''          
+                  
          for ever_messages in messages:
              print(ever_messages)
          '''
