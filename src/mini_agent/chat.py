@@ -70,10 +70,8 @@ def main(budget=None,use_mcp=True):
                 except Exception:
                     pass
                 mcp_client=None
-                '''
-                兜底清理：
-                如果 mcp_client 已经实例化，调用`close()`关闭子进程、管道（嵌套 try-pass，防止 close 本身又报错卡死清理流程）
-                '''
+                # 兜底清理：mcp_client 已实例化则关闭子进程与管道
+                # 嵌套 try-pass：防止 close 本身出错卡住清理流程
             registry.register(CalculatorTool())
     else:
         # 降级模式：没有 MCP 时，本地 calculator 顶上（本尊回家）
@@ -132,18 +130,7 @@ def main(budget=None,use_mcp=True):
              del memory.messages[before:]
              continue
          print() 
-         '''
-         for new_messages in memory.messages[before:]:
-             tool_calls=new_messages.get("tool_calls")
-             if tool_calls:
-                 for tool_call in tool_calls:
-                     print(f"  [调用工具] {tool_call['function']['name']}"
-                          f" 参数: {tool_call['function']['arguments']}")
-         print()   
-                  
-         for ever_messages in messages:
-             print(ever_messages)
-         '''
+         
         
          print(f"  [{memory.stats()}]")
     finally:

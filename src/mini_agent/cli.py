@@ -12,7 +12,7 @@ def build_parser():
         prog="mini-agent",
         description="MiniAgent —— 一个可以使用工具的 AI Agent",
     )
-    parser.add_argument("-V", "--version", action="version", version="mini-agent 0.9.0")
+    parser.add_argument("-V", "--version", action="version", version="mini-agent 1.0.0")
 
     subparsers = parser.add_subparsers(dest="command")
 

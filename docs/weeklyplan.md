@@ -88,3 +88,8 @@ w5d1 MCP 概念 + stdio 传输（echo 服务器）
 w6d1 CLI 骨架（argparse + console script） → w6d2 流式输出（SSE + on_token）
 → w6d3 流式工具调用（碎片拼装 + 接入 Agent） → w6d4 交互命令（/help /stats /tools /clear）
 → w6d5 网络韧性（重试 / 退避 / 友好报错 / 失败回滚） → w6d6 打磨 → w6d7 收官
+# Week 7：测试与项目整理（v1.0）
+
+w7d1 pytest 套件（tools/memory/agent） → w7d2 MCP/CLI 测试 + 代码清理
+→ w7d3 README 与架构图 → w7d4 版本 1.0.0 + 文档收尾
+→ w7d5 从零验收 → w7d6 简历与面试包装 → w7d7 总结
