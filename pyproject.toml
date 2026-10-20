@@ -10,5 +10,13 @@ requires-python = ">=3.12"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
 [project.scripts]
 mini-agent = "mini_agent.cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = ["experiments", ".venv", "__pycache__"]
